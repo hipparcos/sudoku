@@ -66,6 +66,10 @@ public enum Square {
 		return this.name();
 	}
 	
+	public int toIndex() {
+		return this.ordinal();
+	}
+	
 	// Private --------------------------------------------------------------
 	
 	private static Square[][] columnsCache = new Square[COL_COUNT][];
@@ -86,7 +90,7 @@ public enum Square {
 		return squaresAsArray[CoordToLinear(col, row)];
 	}
 	
-	private static int CoordToLinear(int col, int row) {
+	public static int CoordToLinear(int col, int row) {
 		return row * COL_COUNT + col;
 	}
 	
