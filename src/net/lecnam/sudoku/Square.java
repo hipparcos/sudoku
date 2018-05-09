@@ -1,11 +1,16 @@
 package net.lecnam.sudoku;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
 /**
+ * A square is the intersection between a row & a column in a sudoku grid.
+ * This enumeration provides utility methods to deal with squares.
+ * 
  * Inspired by http://norvig.com/sudoku.html
  * 
  * @author Adrien Aucher
@@ -31,24 +36,49 @@ public enum Square {
 	public static final int BOX_SIZE = 3;
 	public static final int BOX_COUNT = SIZE / (BOX_SIZE * BOX_SIZE);
 	
+	/**
+	 * Get all the squares in the column of a given square. 
+	 * 
+	 * @param square
+	 * @return an array of all the squares of the corresponding column
+	 */
 	public static Square[] getColumn(Square square) {
 		cacheColumns();
 		int idx = getColumnIndex(square);
 		return columnsCache[idx];
 	}
 	
+	/**
+	 * Get all the squares in the row of a given square. 
+	 * 
+	 * @param square
+	 * @return an array of all the squares of the corresponding row
+	 */
 	public static Square[] getRow(Square square) {
 		cacheRows();
 		int idx = getRowIndex(square);
 		return rowsCache[idx];
 	}
 	
+	/**
+	 * Get all the squares in the box of a given square. 
+	 * 
+	 * @param square
+	 * @return an array of all the squares of the corresponding box
+	 */
 	public static Square[] getBox(Square square) {
 		cacheBoxes();
 		int idx = getBoxIndex(square);
 		return boxesCache[idx];
 	}
 	
+	/**
+	 * Get all units associated with a given square.
+	 * An array of 3 units are returned: column, row & box. 
+	 * 
+	 * @param square
+	 * @return an array of size 3
+	 */
 	public static Square[][] getUnits(Square square) {
 		Square[][] units = new Square[3][];
 		units[0] = getColumn(square);
@@ -57,6 +87,27 @@ public enum Square {
 		return units;
 	}
 	
+	/**
+	 * Get a list of all the units of the grid.
+	 * Return all the columns, rows & boxes.
+	 * 
+	 * @return list of all the units of the grid
+	 */
+	public static List<Square[]> getAllUnits() {
+		cacheUnits();
+		List<Square[]> units = new ArrayList<>();
+		units.addAll(Arrays.asList(columnsCache));
+		units.addAll(Arrays.asList(rowsCache));
+		units.addAll(Arrays.asList(boxesCache));
+		return units;
+	}
+	
+	/**
+	 * Get all squares contained in the units associated with a given square.
+	 * 
+	 * @param square
+	 * @return a set of all the squares related to the given square.
+	 */
 	public static Set<Square> getPeers(Square square) {
 		cachePeers();
 		return peersCache.get(square.ordinal());
@@ -178,6 +229,12 @@ public enum Square {
 				}
 			}
 		}
+	}
+	
+	private static void cacheUnits() {
+		cacheColumns();
+		cacheRows();
+		cacheBoxes();
 	}
 	
 	private static void cachePeers() {

@@ -19,6 +19,11 @@ class SquareTest {
 	}
 	
 	@Test
+	void test_getAllUnits() {
+		assertEquals(27, Square.getAllUnits().size());
+	}
+	
+	@Test
 	void test_getUnits() {
 		Square[][] unitsForC2 =
 			{{Square.A2, Square.B2, Square.C2, Square.D2, Square.E2, Square.F2, Square.G2, Square.H2, Square.I2},
