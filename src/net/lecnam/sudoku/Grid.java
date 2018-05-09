@@ -47,13 +47,22 @@ import java.util.Vector;
  * 
  */
 public class Grid {
-	
+
+	/**
+	 * The grid to solve.
+	 */
+	private int[] source;
+	/**
+	 * The list of candidates for each squares.
+	 */
 	private Vector<List<Integer>> grid;
+
 	private final String rowSeperator = "-";
 	private final String colSeparator = "|";
 	private final String comment = "#";
-	
+
 	public Grid() {
+		source = new int[Square.SIZE];
 		grid = new Vector<>(Square.SIZE);
 		for (int i = 0; i < Square.SIZE; i++) {
 			grid.add(new ArrayList<Integer>());
@@ -63,55 +72,85 @@ public class Grid {
 	public void read(Reader r) throws IOException {
 		read(r, "\n");
 	}
-	
-	public void read(Reader r, String separator) throws IOException {
+
+	/**
+	 * Tells is the grid is solved in the current state. The grid is solved when the
+	 * size of the list of possible values is equal to 1 for each squares that have
+	 * to be completed (which are not in source).
+	 * 
+	 * @return
+	 */
+	public boolean solved() {
+		return false;
+	}
+
+	public void read(Reader r) throws IOException {
 		BufferedReader br = new BufferedReader(r);
 		String line = null;
 		int row = 0;
-        while((line = br.readLine()) != null && row < Square.ROW_COUNT) {
-            String trimmed = line.trim();
-            if (!trimmed.startsWith(comment)) {
-            	for (int col = 0; col < Square.COL_COUNT; col++) {
-            		int value = trimmed.charAt(col) - '0';
-            		if (value >= 1 && value <= 9) {
-	            		List<Integer> l = grid.get(Square.CoordToLinear(col, row));
-	            		l.clear();
-	            		l.add(value);
-            		}
-            	}
-            	row++;
-            }
-        }
+		while ((line = br.readLine()) != null && row < Square.ROW_COUNT) {
+			String trimmed = line.trim();
+			if (!trimmed.startsWith(comment)) {
+				for (int col = 0; col < Square.COL_COUNT && col < trimmed.length(); col++) {
+					int value = trimmed.charAt(col) - '0';
+					if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
+						int idx = Square.CoordToLinear(col, row);
+						source[idx] = value;
+						grid.get(idx).clear();
+					}
+				}
+				row++;
+			}
+		}
 	}
-	
+
 	public void write(Writer w) throws IOException {
-		String line = String.join("",
+		write(w, true);
+	}
+
+	public void write(Writer w, boolean decorate) throws IOException {
+		String line = String.join("", // Line decorator.
 				Collections.nCopies(3 * Square.COL_COUNT + Square.COL_COUNT / Square.BOX_SIZE + 1, rowSeperator));
+
+		String formatSquare, formatEmpty;
+		if (decorate) {
+			formatSquare = " %d ";
+			formatEmpty = "   ";
+		} else {
+			formatSquare = "%d";
+			formatEmpty = ".";
+		}
+
 		for (int col = 0; col < Square.COL_COUNT; col++) {
 			if (col % Square.BOX_SIZE == 0) {
-				w.write(line);
-				w.write("\n");
+				if (decorate) {
+					w.write(line);
+					w.write("\n");
+				}
 			}
 			for (int row = 0; row < Square.ROW_COUNT; row++) {
-				if (row % Square.BOX_SIZE == 0) {
+				if (decorate && row % Square.BOX_SIZE == 0) {
 					w.write(colSeparator);
 				}
-				List<Integer> l = grid.get(Square.CoordToLinear(col, row));
-				if (!l.isEmpty()) {
-					w.write(String.format(" %d ", l.get(0)));
+				int idx = Square.CoordToLinear(col, row);
+				List<Integer> l = grid.get(idx);
+				if (source[idx] > 0) {
+					w.write(String.format(formatSquare, source[idx]));
+				} else if (!l.isEmpty()) {
+					w.write(String.format(formatSquare, l.get(0)));
 				} else {
-					w.write("   ");
+					w.write(formatEmpty);
 				}
 			}
-			w.write(colSeparator);
+			if (decorate) {
+				w.write(colSeparator);
+			}
 			w.write("\n");
 		}
-		w.write(line);
-		w.write("\n");
+		if (decorate) {
+			w.write(line);
+			w.write("\n");
+		}
 		w.flush();
-	}
-	
-	public boolean solved() {
-		return false;
 	}
 }

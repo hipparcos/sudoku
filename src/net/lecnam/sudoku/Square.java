@@ -35,6 +35,7 @@ public enum Square {
 	public static final int ROW_COUNT = 9;
 	public static final int BOX_SIZE = 3;
 	public static final int BOX_COUNT = SIZE / (BOX_SIZE * BOX_SIZE);
+	public static final int SQUARE_MAX_VALUE = 9;
 	
 	/**
 	 * Get all the squares in the column of a given square. 
