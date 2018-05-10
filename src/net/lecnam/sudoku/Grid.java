@@ -15,33 +15,33 @@ import java.util.Vector;
  *   Columns are designated by a number.
  *   A square is the intersection of a row and a column.
  *   A unit is either a row, a column, a box.
- *   Peers are all squares contained in all units for a particular square. 
+ *   Peers are all squares contained in all units for a particular square.
  *   Each of the squares has 3 units: a row, a column and a box.
- *   
- *   Rows count = 9
- *   Columns count = 9
- *   Squares count = 81
- *   Box count = 9
- *   Unit count per square = 3
- *   Peers count per square = 20
  * 
- * Rule:
- *   A puzzle is solved if the squares in each unit are filled with a permutation of the digits 1 to 9.
+ * Rows count = 9
+ * Columns count = 9
+ * Squares count = 81
+ * Box count = 9
+ * Unit count per square = 3
+ * Peers count per square = 20
  * 
- *       1  2  3    4  5  6    7  8  9
- *    ┌──────────┬──────────┬──────────┐
- *  A │ A1 A2 A3 │ A4 A5 A6 │ A7 A8 A9 │
- *  B │ B1 B2 B3 │ B4 B5 B6 │ B7 B8 B9 │
- *  C │ C1 C2 C3 │ C4 C5 C6 │ C7 C8 C9 │
- *    ├──────────┼──────────┼──────────┤
- *  D │ D1 D2 D3 │ D4 D5 D6 │ D7 D8 D9 │
- *  E │ E1 E2 E3 │ E4 E5 E6 │ E7 E8 E9 │
- *  F │ F1 F2 F3 │ F4 F5 F6 │ F7 F8 F9 │
- *    ├──────────┼──────────┼──────────┤
- *  G │ G1 G2 G3 │ G4 G5 G6 │ G7 G8 G9 │
- *  H │ H1 H2 H3 │ H4 H5 H6 │ H7 H8 H9 │
- *  I │ I1 I2 I3 │ I4 I5 I6 │ I7 I8 I9 │
- *    └──────────┴──────────┴──────────┘
+ * Rule: A puzzle is solved if the squares in each unit are filled with a
+ * permutation of the digits 1 to 9.
+ * 
+ *      1  2  3    4  5  6    7  8  9 
+ *   ┌──────────┬──────────┬──────────┐
+ * A │ A1 A2 A3 │ A4 A5 A6 │ A7 A8 A9 │
+ * B │ B1 B2 B3 │ B4 B5 B6 │ B7 B8 B9 │
+ * C │ C1 C2 C3 │ C4 C5 C6 │ C7 C8 C9 │
+ *   ├──────────┼──────────┼──────────┤
+ * D │ D1 D2 D3 │ D4 D5 D6 │ D7 D8 D9 │
+ * E │ E1 E2 E3 │ E4 E5 E6 │ E7 E8 E9 │
+ * F │ F1 F2 F3 │ F4 F5 F6 │ F7 F8 F9 │
+ *   ├──────────┼──────────┼──────────┤
+ * G │ G1 G2 G3 │ G4 G5 G6 │ G7 G8 G9 │
+ * H │ H1 H2 H3 │ H4 H5 H6 │ H7 H8 H9 │
+ * I │ I1 I2 I3 │ I4 I5 I6 │ I7 I8 I9 │
+ *   └──────────┴──────────┴──────────┘
  *
  * @author Adrien Aucher
  * 
@@ -68,20 +68,74 @@ public class Grid {
 			grid.add(new ArrayList<Integer>());
 		}
 	}
-	
-	public void read(Reader r) throws IOException {
-		read(r, "\n");
+
+	/**
+	 * Tells if a the possible values list of a given square will be taken into
+	 * account when telling if the grid is solved.
+	 * 
+	 * @param square
+	 * @return
+	 */
+	public boolean isModifiable(Square square) {
+		return source[square.toIndex()] == 0;
 	}
 
 	/**
-	 * Tells is the grid is solved in the current state. The grid is solved when the
-	 * size of the list of possible values is equal to 1 for each squares that have
-	 * to be completed (which are not in source).
+	 * Returns the list of candidates values for a given square.
+	 * 
+	 * @param square
+	 * @return
+	 */
+	public List<Integer> getPossibleValues(Square square) {
+		return grid.get(square.toIndex());
+	}
+
+	/**
+	 * Tells is the grid is solved in the current state. The grid is solved when
+	 * each units is the permutation of 1 to 9 digits.
 	 * 
 	 * @return
 	 */
 	public boolean solved() {
-		return false;
+		/* 
+		 * This function uses a binary set to track square values. Each
+		 * digit that is present in a unit is set to 1 at the corresponding
+		 * bit position.
+		 */
+		
+		// This variable represents a valid unit.
+		// For a 9x9 sudoku: valid = 0b111111111.
+		int valid = 0;
+		for (int i = 0; i < Square.SQUARE_MAX_VALUE; i++) {
+			valid = (valid << 1) | 0x1;
+		}
+		
+		// Checks if each units has exactly each digits once.
+		for (Square[] unit: Square.getAllUnits()) {
+			int check = 0;
+			for (int i = 0; i < unit.length; i++) {
+				int value = getValue(unit[i]);
+				if (value > 0) {
+					// Set the corresponding digit in the check flag.
+					check |= 0x1 << (value - 1);
+				}
+			}
+			if (check != valid) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private int getValue(Square square) {
+		int idx = square.toIndex();
+		if (source[idx] > 0) {
+			return source[idx];
+		}
+		if (!grid.get(idx).isEmpty()) {
+			return grid.get(idx).get(0);
+		}
+		return 0;
 	}
 
 	public void read(Reader r) throws IOException {
