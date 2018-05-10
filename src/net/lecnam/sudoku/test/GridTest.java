@@ -81,15 +81,15 @@ class GridTest {
 		try {
 			Grid g1 = new Grid();
 			g1.read(new StringReader(testGridInput));
-			assertFalse(g1.solved());
+			assertFalse(g1.isSolved());
 			
 			Grid g2 = new Grid();
 			g2.read(new StringReader(invalidGrid));
-			assertFalse(g2.solved());
+			assertFalse(g2.isSolved());
 			
 			Grid g3 = new Grid();
 			g3.read(new StringReader(testGridSolved));
-			assertTrue(g3.solved());
+			assertTrue(g3.isSolved());
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("IOException");

@@ -49,13 +49,13 @@ public enum Square {
 		// Cache columns.
 		columns = new Square[COL_COUNT][];
 		for (int i = 0; i < COL_COUNT; i++) {
-			columns[i] = computeColumn(squares[i]);
+			columns[i] = squares[i].computeColumn();
 		}
 
 		// Cache rows.
 		rows = new Square[ROW_COUNT][];
 		for (int i = 0; i < ROW_COUNT; i++) {
-			rows[i] = computeRow(squares[i * COL_COUNT]);
+			rows[i] = squares[i * COL_COUNT].computeRow();
 		}
 		
 		// Cache boxes.
@@ -63,7 +63,7 @@ public enum Square {
 		int box = 0;
 		for (int col = 0; col < COL_COUNT; col += BOX_SIZE) {
 			for (int row = 0; row < ROW_COUNT; row += BOX_SIZE) {
-				boxes[box] = computeBox(getSquareFromGridCoord(col, row));
+				boxes[box] = getSquareFromGridCoord(col, row).computeBox();
 				box++;
 			}
 		}
@@ -71,55 +71,51 @@ public enum Square {
 		// Cache peers.
 		peers = new Vector<>(SIZE);
 		for (Square s: Square.values()) {
-			peers.add(computePeers(s));
+			peers.add(s.computePeers());
 		}
 	}
 	
 	/**
-	 * Get all the squares in the column of a given square. 
+	 * Get all the squares in the column of this square. 
 	 * 
-	 * @param square
-	 * @return an array of all the squares of the corresponding column
+	 * @return an array of all the squares of the associated column
 	 */
-	public static Square[] getColumn(Square square) {
-		int idx = getColumnIndex(square);
+	public Square[] getColumn() {
+		int idx = getColumnIndex();
 		return columns[idx];
 	}
 	
 	/**
-	 * Get all the squares in the row of a given square. 
+	 * Get all the squares in the row of this square. 
 	 * 
-	 * @param square
-	 * @return an array of all the squares of the corresponding row
+	 * @return an array of all the squares of the associated row
 	 */
-	public static Square[] getRow(Square square) {
-		int idx = getRowIndex(square);
+	public Square[] getRow() {
+		int idx = getRowIndex();
 		return rows[idx];
 	}
 	
 	/**
-	 * Get all the squares in the box of a given square. 
+	 * Get all the squares in the box of this square. 
 	 * 
-	 * @param square
-	 * @return an array of all the squares of the corresponding box
+	 * @return an array of all the squares of the associated box
 	 */
-	public static Square[] getBox(Square square) {
-		int idx = getBoxIndex(square);
+	public Square[] getBox() {
+		int idx = getBoxIndex();
 		return boxes[idx];
 	}
 	
 	/**
-	 * Get all units associated with a given square.
+	 * Get all units associated with this square.
 	 * An array of 3 units are returned: column, row & box. 
 	 * 
-	 * @param square
 	 * @return an array of size 3
 	 */
-	public static Square[][] getUnits(Square square) {
+	public Square[][] getUnits() {
 		Square[][] units = new Square[3][];
-		units[0] = getColumn(square);
-		units[1] = getRow(square);
-		units[2] = getBox(square);
+		units[0] = getColumn();
+		units[1] = getRow();
+		units[2] = getBox();
 		return units;
 	}
 	
@@ -138,35 +134,30 @@ public enum Square {
 	}
 	
 	/**
-	 * Get all squares contained in the units associated with a given square.
+	 * Get all squares contained in the units associated with this square.
 	 * 
-	 * @param square
-	 * @return a set of all the squares related to the given square.
+	 * @return a set of all the squares related to this square.
 	 */
-	public static Set<Square> getPeers(Square square) {
-		return peers.get(square.ordinal());
+	public Set<Square> getPeers() {
+		return peers.get(this.ordinal());
+	}
+	
+	public static Square indexToSquare(int idx) {
+		return squares[idx];
 	}
 	
 	public static int GridCoordToLinear(int col, int row) {
 		return row * COL_COUNT + col;
 	}
 	
-	public String toString() {
-		return this.name();
-	}
-	
-	public int toIndex() {
-		return this.ordinal();
-	}
-	
 	// Private --------------------------------------------------------------
 	
-	private static int getColumnIndex(Square square) {
-		return square.ordinal() % COL_COUNT;
+	private int getColumnIndex() {
+		return this.ordinal() % COL_COUNT;
 	}
 	
-	private static int getRowIndex(Square square) {
-		return square.ordinal() / COL_COUNT;
+	private int getRowIndex() {
+		return this.ordinal() / COL_COUNT;
 	}
 	
 	private static Square getSquareFromGridCoord(int col, int row) {
@@ -177,33 +168,33 @@ public enum Square {
 		return row * size + col;
 	}
 	
-	private static int getBoxIndex(Square square) {
-		int col = getColumnIndex(square);
-		int row = getRowIndex(square);
+	private int getBoxIndex() {
+		int col = getColumnIndex();
+		int row = getRowIndex();
 		int idx = GridCoordToLinear(col / BOX_SIZE, row / BOX_SIZE, BOX_SIZE);
 		return idx;
 	}
 	
-	private static int getBoxStartCol(Square square) {
-		int idx = getBoxIndex(square);
+	private int getBoxStartCol() {
+		int idx = getBoxIndex();
 		return (idx % BOX_SIZE) * BOX_SIZE;
 	}
 	
-	private static int getBoxStartRow(Square square) {
-		int idx = getBoxIndex(square);
+	private int getBoxStartRow() {
+		int idx = getBoxIndex();
 		return (idx / BOX_SIZE) * BOX_SIZE;
 	}
 	
-	private static Square[] computeColumn(Square square) {
-		int col = getColumnIndex(square);
+	private Square[] computeColumn() {
+		int col = getColumnIndex();
 		Square[] squares = new Square[COL_COUNT];
 		for (int row = 0; row < ROW_COUNT; row++) {
 			squares[row] = getSquareFromGridCoord(col, row);
 		}
 		return squares;
 	}
-	private static Square[] computeRow(Square square) {
-		int row = getRowIndex(square);
+	private Square[] computeRow() {
+		int row = getRowIndex();
 		Square[] squares = new Square[ROW_COUNT];
 		for (int col = 0; col < COL_COUNT; col++) {
 			squares[col] = getSquareFromGridCoord(col, row);
@@ -211,23 +202,23 @@ public enum Square {
 		return squares;
 	}
 	
-	private static Square[] computeBox(Square square) {
+	private Square[] computeBox() {
 		Square[] box = new Square[BOX_SIZE * BOX_SIZE];
 		for (int row = 0; row < BOX_SIZE; row++) {
 			for (int col = 0; col < BOX_SIZE; col++) {
 				box[GridCoordToLinear(col, row, BOX_SIZE)] =
-						getSquareFromGridCoord(getBoxStartCol(square) + col, getBoxStartRow(square) + row);
+						getSquareFromGridCoord(getBoxStartCol() + col, getBoxStartRow() + row);
 			}
 		}
 		return box;
 	}
 	
-	private static Set<Square> computePeers(Square square) {
+	private Set<Square> computePeers() {
 		Set<Square> set = new TreeSet<>();
-		for (Square[] u: getUnits(square)) {
+		for (Square[] u: getUnits()) {
 			set.addAll(Arrays.asList(u));
 		}
-		set.remove(square);
+		set.remove(this);
 		return set;
 	}
 

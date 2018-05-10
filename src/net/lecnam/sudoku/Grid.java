@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * A typical sudoku grid:
@@ -49,13 +46,13 @@ import java.util.Vector;
 public class Grid {
 
 	/**
-	 * The grid to solve.
+	 * The original grid to solve.
 	 */
 	private int[] source;
 	/**
 	 * The list of candidates for each squares.
 	 */
-	private Vector<List<Integer>> grid;
+	private int[] candidates;
 
 	private final String rowSeperator = "-";
 	private final String colSeparator = "|";
@@ -63,10 +60,7 @@ public class Grid {
 
 	public Grid() {
 		source = new int[Square.SIZE];
-		grid = new Vector<>(Square.SIZE);
-		for (int i = 0; i < Square.SIZE; i++) {
-			grid.add(new ArrayList<Integer>());
-		}
+		candidates = new int[Square.SIZE];
 	}
 
 	/**
@@ -77,17 +71,7 @@ public class Grid {
 	 * @return
 	 */
 	public boolean isModifiable(Square square) {
-		return source[square.toIndex()] == 0;
-	}
-
-	/**
-	 * Returns the list of candidates values for a given square.
-	 * 
-	 * @param square
-	 * @return
-	 */
-	public List<Integer> getPossibleValues(Square square) {
-		return grid.get(square.toIndex());
+		return source[square.ordinal()] == 0;
 	}
 
 	/**
@@ -96,7 +80,7 @@ public class Grid {
 	 * 
 	 * @return
 	 */
-	public boolean solved() {
+	public boolean isSolved() {
 		/* 
 		 * This function uses a binary set to track square values. Each
 		 * digit that is present in a unit is set to 1 at the corresponding
@@ -128,14 +112,11 @@ public class Grid {
 	}
 	
 	private int getValue(Square square) {
-		int idx = square.toIndex();
+		int idx = square.ordinal();
 		if (source[idx] > 0) {
 			return source[idx];
 		}
-		if (!grid.get(idx).isEmpty()) {
-			return grid.get(idx).get(0);
-		}
-		return 0;
+		return candidates[idx];
 	}
 
 	public void read(Reader r) throws IOException {
@@ -148,9 +129,8 @@ public class Grid {
 				for (int col = 0; col < Square.COL_COUNT && col < trimmed.length(); col++) {
 					int value = trimmed.charAt(col) - '0';
 					if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
-						int idx = Square.CoordToLinear(col, row);
+						int idx = Square.GridCoordToLinear(col, row);
 						source[idx] = value;
-						grid.get(idx).clear();
 					}
 				}
 				row++;
@@ -186,12 +166,11 @@ public class Grid {
 				if (decorate && row % Square.BOX_SIZE == 0) {
 					w.write(colSeparator);
 				}
-				int idx = Square.CoordToLinear(col, row);
-				List<Integer> l = grid.get(idx);
+				int idx = Square.GridCoordToLinear(col, row);
 				if (source[idx] > 0) {
 					w.write(String.format(formatSquare, source[idx]));
-				} else if (!l.isEmpty()) {
-					w.write(String.format(formatSquare, l.get(0)));
+				} else if (candidates[idx] > 0) {
+					w.write(String.format(formatSquare, candidates[idx]));
 				} else {
 					w.write(formatEmpty);
 				}
