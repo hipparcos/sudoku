@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import net.lecnam.sudoku.solver.ConstraintPropagationSolver;
+
 public class Main {
 	private static final String FILENAME = "grid1.txt";
 	
@@ -19,6 +21,8 @@ public class Main {
 			System.err.println("Can't read grid.");
 			e.printStackTrace();
 		}
+		
+		grid.solve(new ConstraintPropagationSolver());
 		
 		// Output.
 		try {

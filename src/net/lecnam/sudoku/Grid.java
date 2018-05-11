@@ -2,9 +2,13 @@ package net.lecnam.sudoku;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A typical sudoku grid:<br>
@@ -53,9 +57,14 @@ public class Grid {
 	 */
 	private int[] source;
 	/**
-	 * The list of candidates for each squares.
+	 * The proposed solution.
 	 */
-	private int[] candidates;
+	private int[] solution;
+	/**
+	 * A list of candidates for each square.
+	 * To be used by solvers.
+	 */
+	private Vector<List<Integer>> candidates;
 
 	private final String rowSeperator = "-";
 	private final String colSeparator = "|";
@@ -70,10 +79,19 @@ public class Grid {
 	 * Use this flag to render the grid in one line.
 	 */
 	public static final int FLAG_INLINE = 1<<2;
+	/**
+	 * Use this flag to render the list of candidates.
+	 * Can't be use along with FLAG_INLINE.
+	 */
+	public static final int FLAG_DEBUG = 1<<3;
 
 	public Grid() {
 		source = new int[Square.SIZE];
-		candidates = new int[Square.SIZE];
+		solution = new int[Square.SIZE];
+		candidates = new Vector<>(Square.SIZE);
+		for (int i = 0; i < Square.SIZE; i++) {
+			candidates.add(new ArrayList<Integer>());
+		}
 	}
 
 	/**
@@ -85,6 +103,35 @@ public class Grid {
 	 */
 	public boolean isModifiable(Square square) {
 		return source[square.ordinal()] == 0;
+	}
+	
+	public int[] cloneSource() {
+		return source.clone();
+	}
+	
+	public void setSolution(int[] solution) {
+		if (solution == null || solution.length != Square.SIZE) {
+			return;
+		}
+		
+		this.solution = solution;
+	}
+	
+	public List<Integer> getCandidates(Square square) {
+		return candidates.get(square.ordinal());
+	}
+	
+	public boolean solve(Solver solver) {
+		if (!solver.solve(this)) {
+			System.out.println(solver + " can't solve this grid.");
+			try {
+				debug(new PrintWriter(System.out));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+		return isSolved();
 	}
 
 	/**
@@ -129,7 +176,7 @@ public class Grid {
 		if (source[idx] > 0) {
 			return source[idx];
 		}
-		return candidates[idx];
+		return solution[idx];
 	}
 	
 	public void read(Reader r) throws IOException {
@@ -168,27 +215,44 @@ public class Grid {
 				row++;
 		}
 	}
+	
+	public void debug(Writer w) throws IOException {
+		write(w, FLAG_DEBUG|FLAG_DECORATE);
+	}
 
 	public void write(Writer w) throws IOException {
 		write(w, FLAG_DECORATE);
 	}
 
 	public void write(Writer w, int flags) throws IOException {
-		String line = String.join("", // Line decorator.
-				Collections.nCopies(3 * Square.COL_COUNT + Square.COL_COUNT / Square.BOX_SIZE + 1, rowSeperator));
-
-		boolean inline =   0 < (flags & FLAG_INLINE);
+		boolean inline   = 0 < (flags & FLAG_INLINE);
 		boolean decorate = 0 < (flags & FLAG_DECORATE) && !inline;
+		boolean debug    = 0 < (flags & FLAG_DEBUG) && !inline;
 		
 		String formatSquare, formatEmpty;
-		if (decorate) {
+		if (decorate && !debug) {
 			formatSquare = " %d ";
 			formatEmpty = "   ";
 		} else {
 			formatSquare = "%d";
 			formatEmpty = ".";
 		}
+		
+		// Used in debug mode to center candidates.
+		int width = 0;
+		if (debug) {
+			for (List<Integer> l: candidates)
+				width = Math.max(width, l.size());
+				width++;
+		}
 
+		String line = String.join("", // Line decorator.
+				Collections.nCopies(
+						((width > 0) ? width : 3) * Square.COL_COUNT
+						+ Square.COL_COUNT / Square.BOX_SIZE + 1
+						, rowSeperator));
+		
+		// Print grid.
 		for (int col = 0; col < Square.COL_COUNT; col++) {
 			if (col % Square.BOX_SIZE == 0) {
 				if (decorate)
@@ -200,14 +264,37 @@ public class Grid {
 				if (decorate && row % Square.BOX_SIZE == 0) {
 					w.write(colSeparator);
 				}
+				
 				int idx = Square.GridCoordToLinear(col, row);
+				List<Integer> digits = candidates.get(idx);
+				
+				// In debug mode to center values.
+				int nspacebef = 0, nspaceaft = 0;
+				if (debug) {
+					int size = digits.size();
+					if (source[idx] > 0)
+						size = 1;
+					nspacebef = (width - size) / 2;
+					nspaceaft = width - nspacebef - size;
+				}
+				for (int s = 0; s < nspacebef; s++)	
+					w.append(" ");
+				
+				// Print value(s).
 				if (source[idx] > 0) {
 					w.write(String.format(formatSquare, source[idx]));
-				} else if (candidates[idx] > 0) {
-					w.write(String.format(formatSquare, candidates[idx]));
+				} else if (solution[idx] > 0) {
+					w.write(String.format(formatSquare, solution[idx]));
+				} else if (debug && !digits.isEmpty()) {
+					for (int d: digits)
+						w.write(String.format(formatSquare, d));
 				} else {
 					w.write(formatEmpty);
 				}
+				
+				// In debug mode to center values.
+				for (int s = 0; s < nspaceaft; s++)	
+					w.append(" ");
 			}
 			if (decorate)
 				w.write(colSeparator);
