@@ -16,58 +16,58 @@ import net.lecnam.sudoku.Grid;
 class GridTest {
 	
 	private final String testGridInput = String.join(""
-			, "1........\n"
-			, ".2.......\n"
-			, "..3......\n"
-			, "...4.....\n"
-			, "....5....\n"
-			, ".....6...\n"
-			, "......7..\n"
-			, ".......8.\n"
-			, "........9\n"
+			, "1........"
+			, ".2......."
+			, "..3......"
+			, "...4....."
+			, "....5...."
+			, ".....6..."
+			, "......7.."
+			, ".......8."
+			, "........9"
 			);
 	private final String testGridExpected = String.join(""
-			, "1........\n"
-			, ".2.......\n"
-			, "..3......\n"
-			, "...4.....\n"
-			, "....5....\n"
-			, ".....6...\n"
-			, "......7..\n"
-			, ".......8.\n"
-			, "........9\n"
+			, "1........"
+			, ".2......."
+			, "..3......"
+			, "...4....."
+			, "....5...."
+			, ".....6..."
+			, "......7.."
+			, ".......8."
+			, "........9"
 			);
 	private final String testGridSolved = String.join(""
-			, "145237698\n"
-			, "627189345\n"
-			, "893564127\n"
-			, "216478953\n"
-			, "374951862\n"
-			, "589326471\n"
-			, "451892736\n"
-			, "962713584\n"
-			, "738645219\n"
+			, "145237698"
+			, "627189345"
+			, "893564127"
+			, "216478953"
+			, "374951862"
+			, "589326471"
+			, "451892736"
+			, "962713584"
+			, "738645219"
 			);
 	
 	private final String invalidGrid = String.join(""
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
-			, "123456789\n"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
+			, "123456789"
 			);
 
 	@Test
 	void test_inputoutput() {
 		Grid g1 = new Grid();
 		try {
-			g1.read(new StringReader(testGridInput));
+			g1.read(new StringReader(testGridInput), true);
 			StringWriter output = new StringWriter();
-			g1.write(output, false);
+			g1.write(output, Grid.FLAG_INLINE);
 			assertEquals(testGridExpected, output.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -80,15 +80,15 @@ class GridTest {
 	void test_solved() {
 		try {
 			Grid g1 = new Grid();
-			g1.read(new StringReader(testGridInput));
+			g1.read(new StringReader(testGridInput), true);
 			assertFalse(g1.isSolved());
 			
 			Grid g2 = new Grid();
-			g2.read(new StringReader(invalidGrid));
+			g2.read(new StringReader(invalidGrid), true);
 			assertFalse(g2.isSolved());
 			
 			Grid g3 = new Grid();
-			g3.read(new StringReader(testGridSolved));
+			g3.read(new StringReader(testGridSolved), true);
 			assertTrue(g3.isSolved());
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -60,6 +60,16 @@ public class Grid {
 	private final String rowSeperator = "-";
 	private final String colSeparator = "|";
 	private final String comment = "#";
+	
+	/**
+	 * Use this flag to render grid with separators.
+	 * Can't be use along with FLAG_INLINE.
+	 */
+	public static final int FLAG_DECORATE = 1<<1;
+	/**
+	 * Use this flag to render the grid in one line.
+	 */
+	public static final int FLAG_INLINE = 1<<2;
 
 	public Grid() {
 		source = new int[Square.SIZE];
@@ -121,34 +131,55 @@ public class Grid {
 		}
 		return candidates[idx];
 	}
-
+	
 	public void read(Reader r) throws IOException {
+		read(r, false);
+	}
+
+	public void read(Reader r, boolean inline) throws IOException {
 		BufferedReader br = new BufferedReader(r);
 		String line = null;
-		int row = 0;
+		int col = 0, row = 0;
 		while ((line = br.readLine()) != null && row < Square.ROW_COUNT) {
 			String trimmed = line.trim();
-			if (!trimmed.startsWith(comment)) {
-				for (int col = 0; col < Square.COL_COUNT && col < trimmed.length(); col++) {
-					int value = trimmed.charAt(col) - '0';
-					if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
-						int idx = Square.GridCoordToLinear(col, row);
-						source[idx] = value;
-					}
+			// Skip blank line.
+			if (trimmed.length() == 0)
+				continue;
+			// Skip line if it's a comment.
+			if (trimmed.startsWith(comment))
+				continue;
+			// Fill source array.
+			for (int i = 0; i < trimmed.length() && row < Square.ROW_COUNT; i++) {
+				int value = trimmed.charAt(i) - '0';
+				if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
+					int idx = Square.GridCoordToLinear(col, row);
+					source[idx] = value;
 				}
-				row++;
+				col++;
+				if (inline && col >= Square.COL_COUNT) {
+					col = 0; row++;
+				}
+				if (!inline && col >= Square.COL_COUNT) {
+					col = 0;
+					break;
+				}
 			}
+			if (!inline)
+				row++;
 		}
 	}
 
 	public void write(Writer w) throws IOException {
-		write(w, true);
+		write(w, FLAG_DECORATE);
 	}
 
-	public void write(Writer w, boolean decorate) throws IOException {
+	public void write(Writer w, int flags) throws IOException {
 		String line = String.join("", // Line decorator.
 				Collections.nCopies(3 * Square.COL_COUNT + Square.COL_COUNT / Square.BOX_SIZE + 1, rowSeperator));
 
+		boolean inline =   0 < (flags & FLAG_INLINE);
+		boolean decorate = 0 < (flags & FLAG_DECORATE) && !inline;
+		
 		String formatSquare, formatEmpty;
 		if (decorate) {
 			formatSquare = " %d ";
@@ -160,10 +191,10 @@ public class Grid {
 
 		for (int col = 0; col < Square.COL_COUNT; col++) {
 			if (col % Square.BOX_SIZE == 0) {
-				if (decorate) {
+				if (decorate)
 					w.write(line);
+				if (!inline)
 					w.write("\n");
-				}
 			}
 			for (int row = 0; row < Square.ROW_COUNT; row++) {
 				if (decorate && row % Square.BOX_SIZE == 0) {
@@ -178,15 +209,16 @@ public class Grid {
 					w.write(formatEmpty);
 				}
 			}
-			if (decorate) {
+			if (decorate)
 				w.write(colSeparator);
-			}
-			w.write("\n");
+			if (!inline)
+				w.write("\n");
 		}
-		if (decorate) {
+		if (decorate)
 			w.write(line);
+		if (!inline)
 			w.write("\n");
-		}
+		
 		w.flush();
 	}
 }
