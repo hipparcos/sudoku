@@ -253,15 +253,15 @@ public class Grid {
 						, rowSeperator));
 		
 		// Print grid.
-		for (int col = 0; col < Square.COL_COUNT; col++) {
-			if (col % Square.BOX_SIZE == 0) {
+		for (int row = 0; row < Square.ROW_COUNT; row++) {
+			if (row % Square.BOX_SIZE == 0) {
 				if (decorate)
 					w.write(line);
 				if (!inline)
 					w.write("\n");
 			}
-			for (int row = 0; row < Square.ROW_COUNT; row++) {
-				if (decorate && row % Square.BOX_SIZE == 0) {
+			for (int col = 0; col < Square.COL_COUNT; col++) {
+				if (decorate && col % Square.BOX_SIZE == 0) {
 					w.write(colSeparator);
 				}
 				
