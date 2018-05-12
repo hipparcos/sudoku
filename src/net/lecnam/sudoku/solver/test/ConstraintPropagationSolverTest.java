@@ -37,6 +37,7 @@ class ConstraintPropagationSolverTest {
 			, "814253769"
 			, "695417382"
 			);
+
 	
 	private final String hard1 = String.join(""
 			, "1........"
@@ -62,21 +63,29 @@ class ConstraintPropagationSolverTest {
 			);
 	
 	@Test
-	void test() {
-		Grid g1 = new Grid();
-		Grid g2 = new Grid();
+	void test_easy() {
+		Grid g = new Grid();
 		try {
-			g1.read(new StringReader(easy1), true);
-			assertTrue(g1.solve(new ConstraintPropagationSolver()));
-			StringWriter output1 = new StringWriter();
-			g1.write(output1, Grid.FLAG_INLINE);
-			assertEquals("easy1", easy1solved, output1.toString());
-			
-			g2.read(new StringReader(hard1), true);
-			assertTrue(g2.solve(new ConstraintPropagationSolver()));
-			StringWriter output2 = new StringWriter();
-			g2.write(output2, Grid.FLAG_INLINE);
-			assertEquals("hard1", hard1Solved, output2.toString());
+			g.read(new StringReader(easy1), true);
+			assertTrue(g.solve(new ConstraintPropagationSolver()));
+			StringWriter output = new StringWriter();
+			g.write(output, Grid.FLAG_INLINE);
+			assertEquals(easy1solved, output.toString(), "easy1");
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("IOException");
+		}
+	}
+	
+	@Test
+	void test_hard() {
+		Grid g = new Grid();
+		try {
+			g.read(new StringReader(hard1), true);
+			assertTrue(g.solve(new ConstraintPropagationSolver()));
+			StringWriter output = new StringWriter();
+			g.write(output, Grid.FLAG_INLINE);
+			assertEquals(hard1Solved, output.toString(), "hard1");
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("IOException");

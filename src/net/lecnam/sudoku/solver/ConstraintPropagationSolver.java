@@ -1,8 +1,12 @@
 package net.lecnam.sudoku.solver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.lecnam.sudoku.Grid;
 import net.lecnam.sudoku.Solver;
@@ -10,10 +14,11 @@ import net.lecnam.sudoku.Square;
 
 public class ConstraintPropagationSolver implements Solver {
 	
-	public static final String NAME = "ConstraintPropagationSolver";
+	private static final String SOLVER_NAME = "ConstraintPropagationSolver";
+	private static Logger logger = LogManager.getLogger(SOLVER_NAME);
 	
 	public String toString() {
-		return NAME;
+		return SOLVER_NAME;
 	}
 	
 	public ConstraintPropagationSolver() {
@@ -21,6 +26,8 @@ public class ConstraintPropagationSolver implements Solver {
 	
 	public boolean solve(Grid grid) {
 		int[] source = grid.cloneSource();
+		
+		logger.info("solve() begin.");
 		
 		// Init candidates.
 		for (int i = 0; i < Square.SIZE; i++) {
@@ -31,13 +38,17 @@ public class ConstraintPropagationSolver implements Solver {
 			}
 		}
 		
+		logger.info("solve() phase 1: assign & eliminate.");
 		for (int i = 0; i < source.length; i++) {
 			if (source[i] > 0 && !assign(grid, Square.indexToSquare(i), source[i])) {
+				logger.error("solve() failed.");
 				return false;
 			}
 		}
 		
+		logger.info("solve() phase 2: brute force search.");
 		if (!search(grid)) {
+			logger.error("solve() failed.");
 			return false;
 		}
 		
@@ -48,15 +59,19 @@ public class ConstraintPropagationSolver implements Solver {
 		}
 		grid.setSolution(solution);
 		
+		logger.info("solve() end successfully.");
+		
 		return true;
 	}
 	
 	private boolean assign(Grid grid, Square square, int digit) {
+		logger.debug(String.format("assign() digit %d to square %s.", digit, square));
 		List<Integer> candidates = grid.getCandidates(square);
 		List<Integer> possibilities = new ArrayList<Integer>();
 		possibilities.addAll(candidates);
 		for (int d: possibilities) {
 			if (d != digit && !eliminate(grid, square, d)) {
+				logger.error(String.format("assign() failed for square %s digit %d.", square, digit));
 				return false;
 			}
 		}
@@ -71,20 +86,24 @@ public class ConstraintPropagationSolver implements Solver {
 	 * @param digit
 	 * @return
 	 */
-	private boolean eliminate(Grid grid, Square square, int digit) {
+	private boolean eliminate(Grid grid, Square square, int digit) {		
 		List<Integer> candidates = grid.getCandidates(square);
 		
 		if (!candidates.contains(digit)) {
 			return true;
 		}
 		
+		logger.debug(String.format("eliminate() digit %d from square %s.", digit, square));
 		candidates.remove(Integer.valueOf(digit));
 		
 		// (1) If a square s is reduced to one value, then eliminate it from the peers.
 		switch (candidates.size()) {
 		case 0:
+			logger.error(
+					String.format("eliminate() strategy 1 failed for square %s digit %d, cause: no more candidates.", square, digit));
 			return false; // Contradiction: removed last value.
 		case 1:
+			logger.debug(String.format("eliminate() from peers of square %s.", square));
 			return eliminate(grid, square.getPeers(), candidates.get(0));
 		}
 		
@@ -98,9 +117,13 @@ public class ConstraintPropagationSolver implements Solver {
 			}
 			switch (places.size()) {
 			case 0:
+				logger.error(
+						String.format("eliminate() strategy 2 failed for square %s digit %d, cause: no places.", square, digit));
+				logger.error(String.format("    Current unit: %s", Arrays.toString(unit)));
 				return false; // Contradiction: no place for this digit.
 			case 1:
 				// This digit can only be in one place in unit; assign it there.
+				logger.debug(String.format("eliminate() assign digit %d to place %s.", digit, places.get(0)));
 				if (!assign(grid, places.get(0), digit)) {
 					return false;
 				}
