@@ -61,8 +61,8 @@ public enum Square {
 		// Cache boxes.
 		boxes = new Square[BOX_COUNT][];
 		int box = 0;
-		for (int col = 0; col < COL_COUNT; col += BOX_SIZE) {
-			for (int row = 0; row < ROW_COUNT; row += BOX_SIZE) {
+		for (int row = 0; row < ROW_COUNT; row += BOX_SIZE) {
+			for (int col = 0; col < COL_COUNT; col += BOX_SIZE) {
 				boxes[box] = getSquareFromGridCoord(col, row).computeBox();
 				box++;
 			}
@@ -171,18 +171,18 @@ public enum Square {
 	private int getBoxIndex() {
 		int col = getColumnIndex();
 		int row = getRowIndex();
-		int idx = GridCoordToLinear(col / BOX_SIZE, row / BOX_SIZE, BOX_SIZE);
+		int idx = GridCoordToLinear(col / BOX_SIZE, row / BOX_SIZE, COL_COUNT / BOX_SIZE);
 		return idx;
 	}
 	
 	private int getBoxStartCol() {
 		int idx = getBoxIndex();
-		return (idx % BOX_SIZE) * BOX_SIZE;
+		return (idx % (COL_COUNT / BOX_SIZE)) * BOX_SIZE;
 	}
 	
 	private int getBoxStartRow() {
 		int idx = getBoxIndex();
-		return (idx / BOX_SIZE) * BOX_SIZE;
+		return (idx / (COL_COUNT / BOX_SIZE)) * BOX_SIZE;
 	}
 	
 	private Square[] computeColumn() {
@@ -206,7 +206,7 @@ public enum Square {
 		Square[] box = new Square[BOX_SIZE * BOX_SIZE];
 		for (int row = 0; row < BOX_SIZE; row++) {
 			for (int col = 0; col < BOX_SIZE; col++) {
-				box[GridCoordToLinear(col, row, BOX_SIZE)] =
+				box[GridCoordToLinear(col, row, COL_COUNT / BOX_SIZE)] =
 						getSquareFromGridCoord(getBoxStartCol() + col, getBoxStartRow() + row);
 			}
 		}
