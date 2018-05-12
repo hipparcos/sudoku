@@ -178,16 +178,22 @@ public class Grid {
 		}
 		return solution[idx];
 	}
+
+	public boolean read(Reader r) throws IOException {
+		return read(new BufferedReader(r), false);
+	}
 	
-	public void read(Reader r) throws IOException {
-		read(r, false);
+	public boolean read(Reader r, boolean inline) throws IOException {
+		return read(new BufferedReader(r), inline);
 	}
 
-	public void read(Reader r, boolean inline) throws IOException {
-		BufferedReader br = new BufferedReader(r);
+	public boolean read(BufferedReader r, boolean inline) throws IOException {
+		reset();
+
 		String line = null;
 		int col = 0, row = 0;
-		while ((line = br.readLine()) != null && row < Square.ROW_COUNT) {
+		boolean assignment = false;
+		while (row < Square.ROW_COUNT && (line = r.readLine()) != null) {
 			String trimmed = line.trim();
 			// Skip blank line.
 			if (trimmed.length() == 0)
@@ -198,9 +204,12 @@ public class Grid {
 			// Fill source array.
 			for (int i = 0; i < trimmed.length() && row < Square.ROW_COUNT; i++) {
 				int value = trimmed.charAt(i) - '0';
+				int idx = Square.GridCoordToLinear(col, row);
 				if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
-					int idx = Square.GridCoordToLinear(col, row);
 					source[idx] = value;
+					assignment = true;
+				} else {
+					source[idx] = 0;
 				}
 				col++;
 				if (inline && col >= Square.COL_COUNT) {
@@ -213,6 +222,14 @@ public class Grid {
 			}
 			if (!inline)
 				row++;
+		}
+		return assignment;
+	}
+
+	private void reset() {
+		solution = new int[Square.SIZE];
+		for (List<Integer> c: candidates) {
+			c.clear();
 		}
 	}
 	

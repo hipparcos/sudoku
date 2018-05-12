@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -14,6 +16,10 @@ import net.lecnam.sudoku.Grid;
 import net.lecnam.sudoku.solver.ConstraintPropagationSolver;
 
 class ConstraintPropagationSolverTest {
+
+	private final String fileEasy    = "test/sudoku-easy50.txt";
+	private final String fileHard    = "test/sudoku-hard95.txt";
+	private final String fileHardest = "test/sudoku-hardest11.txt";
 
 	private final String easy1 = String.join(""
 			, "..3.2.6.."
@@ -86,6 +92,39 @@ class ConstraintPropagationSolverTest {
 			StringWriter output = new StringWriter();
 			g.write(output, Grid.FLAG_INLINE);
 			assertEquals(hard1Solved, output.toString(), "hard1");
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("IOException");
+		}
+	}
+
+	@Test
+	void test_easyAll() {
+		testFile(fileEasy);
+	}
+
+	@Test
+	void test_hardAll() {
+		testFile(fileHard);
+	}
+
+	@Test
+	void test_hardestAll() {
+		testFile(fileHardest);
+	}
+
+	void testFile(String filename) {
+		Grid g = new Grid();
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			int line = 1;
+			while(g.read(reader, true)) {
+				StringWriter output = new StringWriter();
+				g.write(output, Grid.FLAG_INLINE);
+				assertTrue(g.solve(new ConstraintPropagationSolver()),
+						String.format("grid %d: %s", line, output.toString()));
+				line++;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("IOException");
