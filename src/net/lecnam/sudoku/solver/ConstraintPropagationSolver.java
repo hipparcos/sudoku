@@ -35,6 +35,20 @@ public class ConstraintPropagationSolver implements Solver {
 	private static final String SOLVER_NAME = "ConstraintPropagationSolver";
 	private static Logger logger = LogManager.getLogger(SOLVER_NAME);
 
+	/**
+	 * Set to true to generate candidates backwards.
+	 */
+	private boolean backward = false;
+
+	public ConstraintPropagationSolver() {
+	}
+	/**
+	 * @param backward set to true to generate candidates backwards.
+	 */
+	public ConstraintPropagationSolver(boolean backward) {
+		this.backward = backward;
+	}
+
 	public String toString() {
 		return SOLVER_NAME;
 	}
@@ -48,8 +62,11 @@ public class ConstraintPropagationSolver implements Solver {
 		for (Square s: Square.asArray()) {
 			List<Integer> candidates = grid.getCandidates(s);
 			candidates.clear();
-			for (int d = 1; d <= Square.SQUARE_MAX_VALUE; d++) {
+			// If backward is set, generate candidates from higher to lower.
+			int d = (backward) ? Square.SQUARE_MAX_VALUE : 1;
+			while (backward && d > 0 || !backward && d <= Square.SQUARE_MAX_VALUE) {
 				candidates.add(d);
+				d = d + ((backward) ? -1 : 1);
 			}
 		}
 
