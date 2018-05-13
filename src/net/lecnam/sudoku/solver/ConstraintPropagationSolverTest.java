@@ -1,4 +1,4 @@
-package net.lecnam.sudoku.solver.test;
+package net.lecnam.sudoku.solver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,7 +13,6 @@ import java.io.StringWriter;
 import org.junit.jupiter.api.Test;
 
 import net.lecnam.sudoku.Grid;
-import net.lecnam.sudoku.solver.ConstraintPropagationSolver;
 
 class ConstraintPropagationSolverTest {
 

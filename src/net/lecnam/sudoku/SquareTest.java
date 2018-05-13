@@ -1,4 +1,4 @@
-package net.lecnam.sudoku.test;
+package net.lecnam.sudoku;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-
-import net.lecnam.sudoku.Square;
 
 class SquareTest {
 	@Test

@@ -1,4 +1,4 @@
-package net.lecnam.sudoku.test;
+package net.lecnam.sudoku;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,8 +10,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import org.junit.jupiter.api.Test;
-
-import net.lecnam.sudoku.Grid;
 
 class GridTest {
 	
