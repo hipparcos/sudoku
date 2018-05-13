@@ -16,7 +16,7 @@ import java.util.Vector;
  *   Columns are designated by a number.<br>
  *   A square is the intersection of a row and a column.<br>
  *   A unit is either a row, a column, a box.<br>
- *   Peers are all squares contained in all units for a particular square.<br>
+ *   Peers are all squares contained in all units for a particular square (except it).<br>
  *   Each of the squares has 3 units: a row, a column and a box.<br>
  * <br>
  * Rows count = 9<br>
@@ -66,10 +66,6 @@ public class Grid {
 	 */
 	private Vector<List<Integer>> candidates;
 
-	private final String rowSeperator = "-";
-	private final String colSeparator = "|";
-	private final String comment = "#";
-	
 	/**
 	 * Use this flag to render grid with separators.
 	 * Can't be use along with FLAG_INLINE.
@@ -85,26 +81,30 @@ public class Grid {
 	 */
 	public static final int FLAG_DEBUG = 1<<3;
 
+	private final String rowSeperator = "-";
+	private final String colSeparator = "|";
+	private final String comment = "#";
+
 	public Grid() {
 		source = new int[Square.SIZE];
 		solution = new int[Square.SIZE];
-		candidates = new Vector<>(Square.SIZE);
-		for (int i = 0; i < Square.SIZE; i++) {
+		candidates = new Vector<List<Integer>>(Square.SIZE);
+		for (int i = 0; i < candidates.capacity(); i++) {
 			candidates.add(new ArrayList<Integer>());
 		}
 	}
-	
+
 	public Grid clone() {
 		Grid cloned = new Grid();
 		cloned.source = this.source;
 		cloned.solution = this.source.clone();
-		cloned.candidates = new Vector<>(Square.SIZE);
-		for (int i = 0; i < this.candidates.size(); i++) {
-			cloned.candidates.add(new ArrayList<Integer>());
-			List<Integer> cs = cloned.candidates.get(i);
-			for (int d: this.candidates.get(i)) {
-				cs.add(d);
+		cloned.candidates = new Vector<List<Integer>>(this.candidates.size());
+		for (List<Integer> mine: this.candidates) {
+			List<Integer> yours = new ArrayList<Integer>();
+			for (int d: mine) {
+				yours.add(d);
 			}
+			cloned.candidates.add(yours);
 		}
 		return cloned;
 	}
@@ -114,16 +114,25 @@ public class Grid {
 	 * account when telling if the grid is solved.
 	 * 
 	 * @param square
-	 * @return
+	 * @return true if a value exists in source grid
 	 */
 	public boolean isModifiable(Square square) {
 		return source[square.ordinal()] == 0;
 	}
-	
+
+	/**
+	 * Returns a copy of the source grid (see read() method).
+	 *
+	 * @return
+	 */
 	public int[] cloneSource() {
 		return source.clone();
 	}
-	
+
+	/**
+	 * Set a solution (see isSolved() method).
+	 * @param solution
+	 */
 	public void setSolution(int[] solution) {
 		if (solution == null || solution.length != Square.SIZE) {
 			return;
@@ -131,11 +140,23 @@ public class Grid {
 		
 		this.solution = solution;
 	}
-	
+
+	/**
+	 * Returns a list of candidates digits for the given square.
+	 *
+	 * @param square
+	 * @return a list of digits
+	 */
 	public List<Integer> getCandidates(Square square) {
 		return candidates.get(square.ordinal());
 	}
-	
+
+	/**
+	 * Solve this grid in place using the given solver.
+	 *
+	 * @param solver
+	 * @return true if the grid is solved
+	 */
 	public boolean solve(Solver solver) {
 		if (!solver.solve(this)) {
 			System.out.println(solver + " can't solve this grid.");
@@ -152,23 +173,23 @@ public class Grid {
 	/**
 	 * Tells is the grid is solved in the current state. The grid is solved when
 	 * each units is the permutation of 1 to 9 digits.
-	 * 
-	 * @return
+	 *
+	 * @return true if the grid is solved
 	 */
 	public boolean isSolved() {
-		/* 
+		/*
 		 * This function uses a binary set to track square values. Each
 		 * digit that is present in a unit is set to 1 at the corresponding
 		 * bit position.
 		 */
-		
+
 		// This variable represents a valid unit.
 		// For a 9x9 sudoku: valid = 0b111111111.
 		int valid = 0;
 		for (int i = 0; i < Square.SQUARE_MAX_VALUE; i++) {
 			valid = (valid << 1) | 0x1;
 		}
-		
+
 		// Checks if each units has exactly each digits once.
 		for (Square[] unit: Square.getAllUnits()) {
 			int check = 0;
@@ -185,7 +206,7 @@ public class Grid {
 		}
 		return true;
 	}
-	
+
 	private int getValue(Square square) {
 		int idx = square.ordinal();
 		if (source[idx] > 0) {
@@ -194,15 +215,39 @@ public class Grid {
 		return solution[idx];
 	}
 
+	/**
+	 * Fill source using a Reader instance.<br>
+	 * Read digits on multiple lines.
+	 *
+	 * @param r
+	 * @return true if an assignment was performed
+	 * @throws IOException
+	 */
 	public boolean read(Reader r) throws IOException {
 		return read(new BufferedReader(r), false);
 	}
-	
+
+	/**
+	 * Fill source using a Reader instance.<br>
+	 *
+	 * @param r
+	 * @param inline if sets, read digits on one line
+	 * @return true if an assignment was performed
+	 * @throws IOException
+	 */
 	public boolean read(Reader r, boolean inline) throws IOException {
 		return read(new BufferedReader(r), inline);
 	}
 
-	// TODO refactor inline reading.
+	/**
+	 * Fill source using a BufferedReader instance.<br>
+	 * Reset solution & candidates.
+	 *
+	 * @param r
+	 * @param inline if sets, read digits on one line
+	 * @return true if an assignment was performed
+	 * @throws IOException
+	 */
 	public boolean read(BufferedReader r, boolean inline) throws IOException {
 		reset();
 
@@ -248,15 +293,36 @@ public class Grid {
 			c.clear();
 		}
 	}
-	
+
+	/**
+	 * Render the grid with flags FLAG_DEBUG & FLAG_DECORATE set.<br>
+	 * Show all remaining candidates.
+	 *
+	 * @param w
+	 * @throws IOException
+	 */
 	public void debug(Writer w) throws IOException {
 		write(w, FLAG_DEBUG|FLAG_DECORATE);
 	}
 
+	/**
+	 * Render the grid with flags FLAG_DECORATE set.<br>
+	 * Show grid separators.
+	 *
+	 * @param w
+	 * @throws IOException
+	 */
 	public void write(Writer w) throws IOException {
 		write(w, FLAG_DECORATE);
 	}
 
+	/**
+	 * Render the grid.
+	 *
+	 * @param w
+	 * @param flags see FLAG_*
+	 * @throws IOException
+	 */
 	public void write(Writer w, int flags) throws IOException {
 		boolean inline   = 0 < (flags & FLAG_INLINE);
 		boolean decorate = 0 < (flags & FLAG_DECORATE) && !inline;

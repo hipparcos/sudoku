@@ -15,4 +15,11 @@ public interface Solver {
 	 * @return true is solving succeeded, false otherwise
 	 */
 	public boolean solve(Grid grid);
+
+	/**
+	 * Must returns the name of the solver.
+	 *
+	 * @return the name of the solver
+	 */
+	public String toString();
 }
