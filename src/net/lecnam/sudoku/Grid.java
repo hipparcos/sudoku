@@ -355,10 +355,12 @@ public class Grid {
 		// Used in debug mode to center candidates.
 		int width = 0;
 		if (debug) {
-			for (List<Integer> l: candidates)
-				width = 1 + Math.max(width, l.size());
-				if (width % 2 == 0)
-					width++;
+			for (List<Integer> l: candidates) {
+				width = Math.max(width, l.size());
+			}
+			width++;
+			if (width % 2 == 0)
+				width++;
 		}
 
 		String line = String.join("", // Line decorator.
