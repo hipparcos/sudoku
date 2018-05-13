@@ -94,10 +94,14 @@ public class Grid {
 		}
 	}
 
+	/**
+	 * Clone the grid.<br>
+	 * CLoned grids share the same source array.
+	 */
 	public Grid clone() {
 		Grid cloned = new Grid();
 		cloned.source = this.source;
-		cloned.solution = this.source.clone();
+		cloned.solution = this.solution.clone();
 		cloned.candidates = new Vector<List<Integer>>(this.candidates.size());
 		for (List<Integer> mine: this.candidates) {
 			List<Integer> yours = new ArrayList<Integer>();
@@ -114,7 +118,7 @@ public class Grid {
 	 * account when telling if the grid is solved.
 	 * 
 	 * @param square
-	 * @return true if a value exists in source grid
+	 * @return true if a value does not exist in source grid
 	 */
 	public boolean isModifiable(Square square) {
 		return source[square.ordinal()] == 0;
