@@ -222,7 +222,11 @@ public class Grid {
 
 	/**
 	 * Fill source using a Reader instance.<br>
-	 * Read digits on multiple lines.
+	 * Read digits on multiple lines.<br>
+	 * Reset solution and candidates.<br>
+	 * The Reader instance is wrapped in a BufferedReader instance.<br>
+	 * Thus, successive call to this read method on the same Reader is not
+	 * possible (cursor position is lost).
 	 *
 	 * @param r the Reader instance
 	 * @return true if an assignment was performed
@@ -234,9 +238,13 @@ public class Grid {
 
 	/**
 	 * Fill source using a Reader instance.<br>
+	 * Reset solution and candidates.<br>
+	 * The Reader instance is wrapped in a BufferedReader instance.<br>
+	 * Thus, successive call to this read method on the same Reader is not
+	 * possible (cursor position is lost).
 	 *
 	 * @param r the Reader instance
-	 * @param inline if sets, read digits on one line
+	 * @param inline if sets, read digits on one line (used for testing)
 	 * @return true if an assignment was performed
 	 * @throws IOException on Reader error
 	 */
@@ -286,6 +294,8 @@ public class Grid {
 					break;
 				}
 			}
+			if (inline && assignment)
+				break; // inline mode: read only one line.
 			if (!inline)
 				row++;
 		}
