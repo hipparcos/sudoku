@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testrun name="SudokuTest" project="sudoku" tests="11" started="11" failures="0" errors="0" ignored="0">
+  <testsuite name="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="1.616" displayname="ConstraintPropagationSolverTest" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]">
+    <testcase name="test_easy" classname="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="0.359" displayname="test_easy()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]/[method:test_easy()]"/>
+    <testcase name="test_hard" classname="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="0.011" displayname="test_hard()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]/[method:test_hard()]"/>
+    <testcase name="test_hardestAll" classname="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="0.101" displayname="test_hardestAll()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]/[method:test_hardestAll()]"/>
+    <testcase name="test_hardAll" classname="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="1.035" displayname="test_hardAll()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]/[method:test_hardAll()]"/>
+    <testcase name="test_easyAll" classname="net.lecnam.sudoku.solver.ConstraintPropagationSolverTest" time="0.11" displayname="test_easyAll()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.solver.ConstraintPropagationSolverTest]/[method:test_easyAll()]"/>
+  </testsuite>
+  <testsuite name="net.lecnam.sudoku.SquareTest" time="0.042" displayname="SquareTest" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.SquareTest]">
+    <testcase name="test_all" classname="net.lecnam.sudoku.SquareTest" time="0.001" displayname="test_all()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.SquareTest]/[method:test_all()]"/>
+    <testcase name="test_getAllUnits" classname="net.lecnam.sudoku.SquareTest" time="0.001" displayname="test_getAllUnits()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.SquareTest]/[method:test_getAllUnits()]"/>
+    <testcase name="test_getPeers" classname="net.lecnam.sudoku.SquareTest" time="0.001" displayname="test_getPeers()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.SquareTest]/[method:test_getPeers()]"/>
+    <testcase name="test_getUnits" classname="net.lecnam.sudoku.SquareTest" time="0.039" displayname="test_getUnits()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.SquareTest]/[method:test_getUnits()]"/>
+  </testsuite>
+  <testsuite name="net.lecnam.sudoku.GridTest" time="0.001" displayname="GridTest" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.GridTest]">
+    <testcase name="test_solved" classname="net.lecnam.sudoku.GridTest" time="0.0" displayname="test_solved()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.GridTest]/[method:test_solved()]"/>
+    <testcase name="test_inputoutput" classname="net.lecnam.sudoku.GridTest" time="0.001" displayname="test_inputoutput()" uniqueid="[engine:junit-jupiter]/[class:net.lecnam.sudoku.GridTest]/[method:test_inputoutput()]"/>
+  </testsuite>
+</testrun>
