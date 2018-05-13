@@ -41,6 +41,9 @@ public class Main {
 		// Input.
 		try (FileReader fileReader = new FileReader(filename)) {
 			grid.read(fileReader);
+			// Display input grid.
+			System.out.println("Input grid:");
+			grid.write(new PrintWriter(System.out));
 		} catch (IOException e) {
 			System.err.println("Can't read grid.");
 			e.printStackTrace();
@@ -62,6 +65,7 @@ public class Main {
 
 		// Output.
 		try {
+			System.out.println("Solution:");
 			grid.write(new PrintWriter(System.out));
 			if (!grid.equals(gridp)) {
 				System.out.println("An other solution:");
