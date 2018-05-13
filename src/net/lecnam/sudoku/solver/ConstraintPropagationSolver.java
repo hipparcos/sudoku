@@ -13,7 +13,7 @@ import net.lecnam.sudoku.Solver;
 import net.lecnam.sudoku.Square;
 
 /**
- * Solve a sudoku grid using a combination of two simple strategy and a brute
+ * Solve a sudoku grid using a combination of two simple strategies and a brute
  * forcing approach.<br>
  * <br>
  * Phase 1: solve using strategies.<br>

@@ -66,7 +66,7 @@ public class Main {
 				, "The first argument must be a valid grid file.\n"
 				, "\n"
 				, "Usage:\n"
-				, "    java -jar sudoku.jar demogrid.txt\n"
+				, "    java -jar sudoku.jar test/grid.txt\n"
 				, "\n"
 				, "Sample grid file:\n"
 				, "    # This line is a comment.\n"
