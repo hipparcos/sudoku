@@ -16,7 +16,8 @@ import net.lecnam.sudoku.solver.ConstraintPropagationSolver;
  * <br>
  * Requirements:<br>
  *   - Must solve any sudoku grid;<br>
- *   - Must be tested using JUnit.<br>
+ *   - Must be tested using JUnit;<br>
+ *   - If multiple solutions exist, show 2 on them.
  *
  * @author Adrien Aucher
  *
@@ -35,6 +36,7 @@ public class Main {
 		String filename = args[0];
 
 		Grid grid = new Grid();
+		Grid gridp = null; // Used to find an other solution for grid.
 
 		// Input.
 		try (FileReader fileReader = new FileReader(filename)) {
@@ -44,13 +46,27 @@ public class Main {
 			e.printStackTrace();
 		}
 
+		// Solve.
 		if (!grid.solve(new ConstraintPropagationSolver())) {
 			System.err.println("Can't solve grid.");
+			System.exit(125);
+		}
+
+		// Try to find an other solution (candidates are generated backwards).
+		gridp = grid.clone();
+		gridp.reset();
+		if (!gridp.solve(new ConstraintPropagationSolver(true))) {
+			System.err.println("Can't solve grid backwards.");
+			System.exit(125);
 		}
 
 		// Output.
 		try {
 			grid.write(new PrintWriter(System.out));
+			if (!grid.equals(gridp)) {
+				System.out.println("An other solution:");
+				gridp.write(new PrintWriter(System.out));
+			}
 		} catch (IOException e) {
 			System.err.println("Can't write grid.");
 			e.printStackTrace();

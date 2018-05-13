@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -111,6 +112,27 @@ public class Grid {
 			cloned.candidates.add(yours);
 		}
 		return cloned;
+	}
+
+	/**
+	 * Tells is a grid is equal to this grid.<br>
+	 * Compares source and solution (but not candidates).
+	 *
+	 * @param that the grid to compare with this grid
+	 * @return true if that is equal to this
+	 */
+	public boolean equals(Grid that) {
+		return Arrays.equals(this.source, that.source) && Arrays.equals(this.solution, that.solution);
+	}
+
+	/**
+	 * Erase solution array and candidates list.
+	 */
+	public void reset() {
+		solution = new int[Square.SIZE];
+		for (List<Integer> c: candidates) {
+			c.clear();
+		}
 	}
 
 	/**
@@ -300,13 +322,6 @@ public class Grid {
 				row++;
 		}
 		return assignment;
-	}
-
-	private void reset() {
-		solution = new int[Square.SIZE];
-		for (List<Integer> c: candidates) {
-			c.clear();
-		}
 	}
 
 	/**
