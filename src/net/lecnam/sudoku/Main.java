@@ -6,28 +6,48 @@ import java.io.PrintWriter;
 
 import net.lecnam.sudoku.solver.ConstraintPropagationSolver;
 
+/**
+ * This Java program is a sudoku solver.<br>
+ * I developed it as required to complete the NFP136 module of my computer
+ * science evening class at IPST CNAM.<br>
+ * <br>
+ * Input: the first argument must be a file containing a sudoku grid.<br>
+ * Output: the completed sudoku grid.<br>
+ * <br>
+ * Requirements:<br>
+ *   - Must solve any sudoku grid;<br>
+ *   - Must be tested using JUnit.<br>
+ *
+ * @author Adrien Aucher
+ *
+ */
 public class Main {
-	
+
+	/**
+	 * Entry point.
+	 *
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		Grid grid = new Grid();
-		
 		if (args.length < 1) {
 			usage();
 		}
 		String filename = args[0];
-		
+
+		Grid grid = new Grid();
+
 		// Input.
-		try {
-			FileReader fileReader = new FileReader(filename);
+		try (FileReader fileReader = new FileReader(filename)) {
 			grid.read(fileReader);
-			fileReader.close();
 		} catch (IOException e) {
 			System.err.println("Can't read grid.");
 			e.printStackTrace();
 		}
-		
-		grid.solve(new ConstraintPropagationSolver());
-		
+
+		if (!grid.solve(new ConstraintPropagationSolver())) {
+			System.err.println("Can't solve grid.");
+		}
+
 		// Output.
 		try {
 			grid.write(new PrintWriter(System.out));
@@ -36,7 +56,10 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * Show usage message.
+	 */
 	public static void usage() {
 		System.out.println(String.join(""
 				, "This Java program is a sudoku solver.\n"
