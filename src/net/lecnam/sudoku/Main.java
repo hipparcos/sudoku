@@ -26,7 +26,7 @@ public class Main {
 	/**
 	 * Entry point.
 	 *
-	 * @param args
+	 * @param args command line arguments
 	 */
 	public static void main(String[] args) {
 		if (args.length < 1) {

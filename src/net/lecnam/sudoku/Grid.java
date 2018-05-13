@@ -117,7 +117,7 @@ public class Grid {
 	 * Tells if a the possible values list of a given square will be taken into
 	 * account when telling if the grid is solved.
 	 * 
-	 * @param square
+	 * @param square the given square
 	 * @return true if a value does not exist in source grid
 	 */
 	public boolean isModifiable(Square square) {
@@ -127,7 +127,7 @@ public class Grid {
 	/**
 	 * Returns a copy of the source grid (see read() method).
 	 *
-	 * @return
+	 * @return a clone of source
 	 */
 	public int[] cloneSource() {
 		return source.clone();
@@ -135,7 +135,8 @@ public class Grid {
 
 	/**
 	 * Set a solution (see isSolved() method).
-	 * @param solution
+	 *
+	 * @param solution the solution array
 	 */
 	public void setSolution(int[] solution) {
 		if (solution == null || solution.length != Square.SIZE) {
@@ -148,7 +149,7 @@ public class Grid {
 	/**
 	 * Returns a list of candidates digits for the given square.
 	 *
-	 * @param square
+	 * @param square the given square
 	 * @return a list of digits
 	 */
 	public List<Integer> getCandidates(Square square) {
@@ -158,7 +159,7 @@ public class Grid {
 	/**
 	 * Solve this grid in place using the given solver.
 	 *
-	 * @param solver
+	 * @param solver a solver instance
 	 * @return true if the grid is solved
 	 */
 	public boolean solve(Solver solver) {
@@ -223,9 +224,9 @@ public class Grid {
 	 * Fill source using a Reader instance.<br>
 	 * Read digits on multiple lines.
 	 *
-	 * @param r
+	 * @param r the Reader instance
 	 * @return true if an assignment was performed
-	 * @throws IOException
+	 * @throws IOException on Reader error
 	 */
 	public boolean read(Reader r) throws IOException {
 		return read(new BufferedReader(r), false);
@@ -234,10 +235,10 @@ public class Grid {
 	/**
 	 * Fill source using a Reader instance.<br>
 	 *
-	 * @param r
+	 * @param r the Reader instance
 	 * @param inline if sets, read digits on one line
 	 * @return true if an assignment was performed
-	 * @throws IOException
+	 * @throws IOException on Reader error
 	 */
 	public boolean read(Reader r, boolean inline) throws IOException {
 		return read(new BufferedReader(r), inline);
@@ -245,12 +246,12 @@ public class Grid {
 
 	/**
 	 * Fill source using a BufferedReader instance.<br>
-	 * Reset solution & candidates.
+	 * Reset solution and candidates.
 	 *
-	 * @param r
+	 * @param r the Reader instance
 	 * @param inline if sets, read digits on one line
 	 * @return true if an assignment was performed
-	 * @throws IOException
+	 * @throws IOException on Reader error
 	 */
 	public boolean read(BufferedReader r, boolean inline) throws IOException {
 		reset();
@@ -299,11 +300,11 @@ public class Grid {
 	}
 
 	/**
-	 * Render the grid with flags FLAG_DEBUG & FLAG_DECORATE set.<br>
+	 * Render the grid with flags FLAG_DEBUG and FLAG_DECORATE set.<br>
 	 * Show all remaining candidates.
 	 *
-	 * @param w
-	 * @throws IOException
+	 * @param w the Writer instance
+	 * @throws IOException on Writer error
 	 */
 	public void debug(Writer w) throws IOException {
 		write(w, FLAG_DEBUG|FLAG_DECORATE);
@@ -313,8 +314,8 @@ public class Grid {
 	 * Render the grid with flags FLAG_DECORATE set.<br>
 	 * Show grid separators.
 	 *
-	 * @param w
-	 * @throws IOException
+	 * @param w the Writer instance
+	 * @throws IOException on Writer error
 	 */
 	public void write(Writer w) throws IOException {
 		write(w, FLAG_DECORATE);
@@ -323,9 +324,9 @@ public class Grid {
 	/**
 	 * Render the grid.
 	 *
-	 * @param w
+	 * @param w the Writer instance
 	 * @param flags see FLAG_*
-	 * @throws IOException
+	 * @throws IOException on Writer error
 	 */
 	public void write(Writer w, int flags) throws IOException {
 		boolean inline   = 0 < (flags & FLAG_INLINE);
@@ -345,8 +346,9 @@ public class Grid {
 		int width = 0;
 		if (debug) {
 			for (List<Integer> l: candidates)
-				width = Math.max(width, l.size());
-				width++;
+				width = 1 + Math.max(width, l.size());
+				if (width % 2 == 0)
+					width++;
 		}
 
 		String line = String.join("", // Line decorator.

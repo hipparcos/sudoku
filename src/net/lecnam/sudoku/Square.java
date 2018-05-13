@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 /**
- * A square is the intersection between a row & a column in a sudoku grid.
+ * A square is the intersection between a row and a column in a sudoku grid.
  * This enumeration provides utility methods to deal with squares.
  * 
  * Inspired by http://norvig.com/sudoku.html
@@ -131,7 +131,7 @@ public enum Square {
 	
 	/**
 	 * Returns all units associated with this square.
-	 * An array of 3 units are returned: column, row & box. 
+	 * An array of 3 units are returned: column, row and box. 
 	 * 
 	 * @return an array of size 3
 	 */
@@ -145,7 +145,7 @@ public enum Square {
 	
 	/**
 	 * Returns a list of all the units of the grid.
-	 * Return all the columns, rows & boxes.
+	 * Return all the columns, rows and boxes.
 	 * 
 	 * @return list of all the units of the grid
 	 */
