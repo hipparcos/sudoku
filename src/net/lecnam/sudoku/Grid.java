@@ -93,6 +93,21 @@ public class Grid {
 			candidates.add(new ArrayList<Integer>());
 		}
 	}
+	
+	public Grid clone() {
+		Grid cloned = new Grid();
+		cloned.source = this.source;
+		cloned.solution = this.source.clone();
+		cloned.candidates = new Vector<>(Square.SIZE);
+		for (int i = 0; i < this.candidates.size(); i++) {
+			cloned.candidates.add(new ArrayList<Integer>());
+			List<Integer> cs = cloned.candidates.get(i);
+			for (int d: this.candidates.get(i)) {
+				cs.add(d);
+			}
+		}
+		return cloned;
+	}
 
 	/**
 	 * Tells if a the possible values list of a given square will be taken into
@@ -187,6 +202,7 @@ public class Grid {
 		return read(new BufferedReader(r), inline);
 	}
 
+	// TODO refactor inline reading.
 	public boolean read(BufferedReader r, boolean inline) throws IOException {
 		reset();
 
@@ -204,7 +220,7 @@ public class Grid {
 			// Fill source array.
 			for (int i = 0; i < trimmed.length() && row < Square.ROW_COUNT; i++) {
 				int value = trimmed.charAt(i) - '0';
-				int idx = Square.GridCoordToLinear(col, row);
+				int idx = Square.getSquareFromCoord(col, row).ordinal();
 				if (value > 0 && value <= Square.SQUARE_MAX_VALUE) {
 					source[idx] = value;
 					assignment = true;
@@ -282,7 +298,7 @@ public class Grid {
 					w.write(colSeparator);
 				}
 				
-				int idx = Square.GridCoordToLinear(col, row);
+				int idx = Square.getSquareFromCoord(col, row).ordinal();
 				List<Integer> digits = candidates.get(idx);
 				
 				// In debug mode to center values.

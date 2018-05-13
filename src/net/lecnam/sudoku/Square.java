@@ -29,12 +29,32 @@ public enum Square {
 	H1, H2, H3, H4, H5, H6, H7, H8, H9,
 	I1, I2, I3, I4, I5, I6, I7, I8, I9;
 	
-	// Dimensions.
+	// Gird dimensions & constants.
+	/**
+	 * Number of squares in the grid.<br>
+	 * Must have an integral square root.
+	 */
 	public static final int SIZE = 81;
+	/**
+	 * Number of columns in the grid.<br>
+	 * COL_COUNT * ROW_COUNT must be equal to SIZE. 
+	 */
 	public static final int COL_COUNT = 9;
+	/**
+	 * Number of rows in the grid.<br>
+	 * COL_COUNT * ROW_COUNT must be equal to SIZE.
+	 */
 	public static final int ROW_COUNT = 9;
+	/**
+	 * The size of a box.<br>
+	 * Must be a divisor of SIZE.
+	 */
 	public static final int BOX_SIZE = 3;
-	public static final int BOX_COUNT = SIZE / (BOX_SIZE * BOX_SIZE);
+	private static final int BOX_COUNT = SIZE / (BOX_SIZE * BOX_SIZE);
+	private static final int BOXES_PER_ROW = COL_COUNT / BOX_SIZE;
+	/**
+	 * Max value of a digit of a square.
+	 */
 	public static final int SQUARE_MAX_VALUE = 9;
 	
 	// Units caches.
@@ -46,6 +66,11 @@ public enum Square {
 	
 	// Initializes units caches.
 	static {
+		// Assertions.
+		assert((int) Math.pow(Math.sqrt(SIZE), 2) == SIZE);
+		assert(COL_COUNT * ROW_COUNT == SIZE);
+		assert(BOX_SIZE * BOX_SIZE == COL_COUNT);
+		
 		// Cache columns.
 		columns = new Square[COL_COUNT][];
 		for (int i = 0; i < COL_COUNT; i++) {
@@ -60,11 +85,10 @@ public enum Square {
 		
 		// Cache boxes.
 		boxes = new Square[BOX_COUNT][];
-		int box = 0;
 		for (int row = 0; row < ROW_COUNT; row += BOX_SIZE) {
 			for (int col = 0; col < COL_COUNT; col += BOX_SIZE) {
-				boxes[box] = getSquareFromGridCoord(col, row).computeBox();
-				box++;
+				Square s = getSquareFromCoord(col, row);
+				boxes[s.getBoxIndex()] = s.computeBox();
 			}
 		}
 
@@ -76,17 +100,17 @@ public enum Square {
 	}
 	
 	/**
-	 * Get all the squares in the column of this square. 
+	 * Returns all the squares in the column of this square. 
 	 * 
 	 * @return an array of all the squares of the associated column
 	 */
 	public Square[] getColumn() {
-		int idx = getColumnIndex();
+		int idx = getColIndex();
 		return columns[idx];
 	}
 	
 	/**
-	 * Get all the squares in the row of this square. 
+	 * Returns all the squares in the row of this square. 
 	 * 
 	 * @return an array of all the squares of the associated row
 	 */
@@ -96,7 +120,7 @@ public enum Square {
 	}
 	
 	/**
-	 * Get all the squares in the box of this square. 
+	 * Returns all the squares in the box of this square. 
 	 * 
 	 * @return an array of all the squares of the associated box
 	 */
@@ -106,7 +130,7 @@ public enum Square {
 	}
 	
 	/**
-	 * Get all units associated with this square.
+	 * Returns all units associated with this square.
 	 * An array of 3 units are returned: column, row & box. 
 	 * 
 	 * @return an array of size 3
@@ -120,7 +144,7 @@ public enum Square {
 	}
 	
 	/**
-	 * Get a list of all the units of the grid.
+	 * Returns a list of all the units of the grid.
 	 * Return all the columns, rows & boxes.
 	 * 
 	 * @return list of all the units of the grid
@@ -134,25 +158,38 @@ public enum Square {
 	}
 	
 	/**
-	 * Get all squares contained in the units associated with this square.
+	 * Returns all squares contained in the units associated with this square.
 	 * 
 	 * @return a set of all the squares related to this square.
 	 */
 	public Set<Square> getPeers() {
 		return peers.get(this.ordinal());
 	}
-	
-	public static Square indexToSquare(int idx) {
-		return squares[idx];
+
+	/**
+	 * Returns an array containing all squares.
+	 * Must be considered as read-only.
+	 * 
+	 * @return an array of all squares
+	 */
+	public static Square[] asArray() {
+		return squares;
 	}
-	
-	public static int GridCoordToLinear(int col, int row) {
-		return row * COL_COUNT + col;
+
+	/**
+	 * Returns a square from its coordinates.
+	 * 
+	 * @param col column index (0 indexed)
+	 * @param row row index (0 indexed)
+	 * @return the corresponding square
+	 */
+	public static Square getSquareFromCoord(int col, int row) {
+		return squares[row * COL_COUNT + col];
 	}
 	
 	// Private --------------------------------------------------------------
 	
-	private int getColumnIndex() {
+	private int getColIndex() {
 		return this.ordinal() % COL_COUNT;
 	}
 	
@@ -160,36 +197,18 @@ public enum Square {
 		return this.ordinal() / COL_COUNT;
 	}
 	
-	private static Square getSquareFromGridCoord(int col, int row) {
-		return squares[GridCoordToLinear(col, row)];
-	}
-	
-	private static int GridCoordToLinear(int col, int row, int size) {
-		return row * size + col;
-	}
-	
 	private int getBoxIndex() {
-		int col = getColumnIndex();
+		int col = getColIndex();
 		int row = getRowIndex();
-		int idx = GridCoordToLinear(col / BOX_SIZE, row / BOX_SIZE, COL_COUNT / BOX_SIZE);
+		int idx = (row / BOX_SIZE) * BOXES_PER_ROW + (col / BOX_SIZE);
 		return idx;
 	}
 	
-	private int getBoxStartCol() {
-		int idx = getBoxIndex();
-		return (idx % (COL_COUNT / BOX_SIZE)) * BOX_SIZE;
-	}
-	
-	private int getBoxStartRow() {
-		int idx = getBoxIndex();
-		return (idx / (COL_COUNT / BOX_SIZE)) * BOX_SIZE;
-	}
-	
 	private Square[] computeColumn() {
-		int col = getColumnIndex();
+		int col = getColIndex();
 		Square[] squares = new Square[COL_COUNT];
 		for (int row = 0; row < ROW_COUNT; row++) {
-			squares[row] = getSquareFromGridCoord(col, row);
+			squares[row] = getSquareFromCoord(col, row);
 		}
 		return squares;
 	}
@@ -197,17 +216,19 @@ public enum Square {
 		int row = getRowIndex();
 		Square[] squares = new Square[ROW_COUNT];
 		for (int col = 0; col < COL_COUNT; col++) {
-			squares[col] = getSquareFromGridCoord(col, row);
+			squares[col] = getSquareFromCoord(col, row);
 		}
 		return squares;
 	}
 	
 	private Square[] computeBox() {
-		Square[] box = new Square[BOX_SIZE * BOX_SIZE];
+		Square[] box = new Square[BOX_COUNT];
+		int startCol = getColIndex() / BOX_SIZE * BOX_SIZE;
+		int startRow = getRowIndex() / BOX_SIZE * BOX_SIZE;
 		for (int row = 0; row < BOX_SIZE; row++) {
 			for (int col = 0; col < BOX_SIZE; col++) {
-				box[GridCoordToLinear(col, row, COL_COUNT / BOX_SIZE)] =
-						getSquareFromGridCoord(getBoxStartCol() + col, getBoxStartRow() + row);
+				box[row * BOX_SIZE + col] =
+						getSquareFromCoord(startCol + col, startRow + row);
 			}
 		}
 		return box;

@@ -30,14 +30,14 @@ class SquareTest {
 	         {Square.C1, Square.C2, Square.C3, Square.C4, Square.C5, Square.C6, Square.C7, Square.C8, Square.C9},
 	         {Square.A1, Square.A2, Square.A3, Square.B1, Square.B2, Square.B3, Square.C1, Square.C2, Square.C3}};
 		
-	    assertArrayEquals(unitsForC2, Square.C2.getUnits());
+	    assertArrayEquals(unitsForC2, Square.C2.getUnits(), "unitsForC2");
 	    
-		Square[][] unitsForE5 =
-			{{Square.A5, Square.B5, Square.C5, Square.D5, Square.E5, Square.F5, Square.G5, Square.H5, Square.I5},
+		Square[][] unitsForE8 =
+			{{Square.A8, Square.B8, Square.C8, Square.D8, Square.E8, Square.F8, Square.G8, Square.H8, Square.I8},
 	         {Square.E1, Square.E2, Square.E3, Square.E4, Square.E5, Square.E6, Square.E7, Square.E8, Square.E9},
-	         {Square.D4, Square.D5, Square.D6, Square.E4, Square.E5, Square.E6, Square.F4, Square.F5, Square.F6}};
+	         {Square.D7, Square.D8, Square.D9, Square.E7, Square.E8, Square.E9, Square.F7, Square.F8, Square.F9}};
 		
-	    assertArrayEquals(unitsForE5, Square.E5.getUnits());
+	    assertArrayEquals(unitsForE8, Square.E8.getUnits(), "unitsForE8");
 	}
 	
 	@Test
@@ -47,14 +47,14 @@ class SquareTest {
 	    		       Square.C1, Square.C3, Square.C4, Square.C5, Square.C6, Square.C7, Square.C8, Square.C9,
 	    		       Square.A1, Square.A3, Square.B1, Square.B3};
 		peersForC2.addAll(Arrays.asList(C2));
-		assertTrue(Square.C2.getPeers().equals(peersForC2));
+		assertTrue(Square.C2.getPeers().equals(peersForC2), "peersForC2");
 		
-	    Set<Square> peersForE5 = new HashSet<>();
-	    Square[] E5 = {Square.A5, Square.B5, Square.C5, Square.D5, Square.F5, Square.G5, Square.H5, Square.I5,
-	    		       Square.E1, Square.E2, Square.E3, Square.E4, Square.E6, Square.E7, Square.E8, Square.E9,
-	    		       Square.D4, Square.D6, Square.F4, Square.F6};
-	    peersForE5.addAll(Arrays.asList(E5));
-		assertTrue(Square.E5.getPeers().equals(peersForE5));
+	    Set<Square> peersForE8 = new HashSet<>();
+	    Square[] E8 = {Square.A8, Square.B8, Square.C8, Square.D8, Square.F8, Square.G8, Square.H8, Square.I8,
+	    		       Square.E1, Square.E2, Square.E3, Square.E4, Square.E5, Square.E6, Square.E7, Square.E9,
+	    		       Square.D7, Square.D9, Square.F7, Square.F9};
+	    peersForE8.addAll(Arrays.asList(E8));
+		assertTrue(Square.E8.getPeers().equals(peersForE8), "peersForE8");
 	}
 
 }

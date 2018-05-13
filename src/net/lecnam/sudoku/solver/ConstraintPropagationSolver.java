@@ -21,17 +21,14 @@ public class ConstraintPropagationSolver implements Solver {
 		return SOLVER_NAME;
 	}
 	
-	public ConstraintPropagationSolver() {
-	}
-	
 	public boolean solve(Grid grid) {
 		int[] source = grid.cloneSource();
 		
 		logger.info("solve() begin.");
 		
 		// Init candidates.
-		for (int i = 0; i < Square.SIZE; i++) {
-			List<Integer> candidates = grid.getCandidates(Square.indexToSquare(i));
+		for (Square s: Square.asArray()) {
+			List<Integer> candidates = grid.getCandidates(s);
 			candidates.clear();
 			for (int d = 1; d <= Square.SQUARE_MAX_VALUE; d++) {
 				candidates.add(d);
@@ -39,24 +36,32 @@ public class ConstraintPropagationSolver implements Solver {
 		}
 		
 		logger.info("solve() phase 1: assign & eliminate.");
-		for (int i = 0; i < source.length; i++) {
-			if (source[i] > 0 && !assign(grid, Square.indexToSquare(i), source[i])) {
+		for (Square s: Square.asArray()) {
+			if (source[s.ordinal()] > 0 && !assign(grid, s, source[s.ordinal()])) {
 				logger.error("solve() failed.");
 				return false;
 			}
 		}
 		
 		logger.info("solve() phase 2: brute force search.");
-		if (!search(grid)) {
+		Grid cloned = grid;
+		if ((cloned = search(grid)) == null) {
 			logger.error("solve() failed.");
 			return false;
 		}
 		
-		int[] solution = new int[Square.SIZE];
-		for (int i = 0; i < Square.SIZE; i++) {
-			List<Integer> candidates = grid.getCandidates(Square.indexToSquare(i));
-			solution[i] = candidates.get(0);
+		// Selection the correct grid to get the solution from.
+		Grid updater = grid;
+		if (cloned != grid) {
+			updater = cloned;
 		}
+		// Create solution array.
+		int[] solution = new int[Square.SIZE];
+		for (Square s: Square.asArray()) {
+			List<Integer> candidates = updater.getCandidates(s);
+			solution[s.ordinal()] = candidates.get(0);
+		}
+		// Update the original grid.
 		grid.setSolution(solution);
 		
 		logger.info("solve() end successfully.");
@@ -66,6 +71,8 @@ public class ConstraintPropagationSolver implements Solver {
 	
 	private boolean assign(Grid grid, Square square, int digit) {
 		logger.debug(String.format("assign() digit %d to square %s.", digit, square));
+		// Must copy the list of candidates before because eliminate may
+		// remove some during the loop.
 		List<Integer> candidates = grid.getCandidates(square);
 		List<Integer> possibilities = new ArrayList<Integer>();
 		possibilities.addAll(candidates);
