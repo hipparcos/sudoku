@@ -1,9 +1,9 @@
 package net.lecnam.sudoku.solver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,8 +32,7 @@ import net.lecnam.sudoku.Square;
  */
 public class ConstraintPropagationSolver implements Solver {
 
-	private static final String SOLVER_NAME = "ConstraintPropagationSolver";
-	private static Logger logger = LogManager.getLogger(SOLVER_NAME);
+	private static Logger logger = LogManager.getLogger("solver");
 
 	/**
 	 * Set to true to generate candidates backwards.
@@ -50,10 +49,14 @@ public class ConstraintPropagationSolver implements Solver {
 	}
 
 	public String toString() {
-		return SOLVER_NAME;
+		return this.getClass().getName();
 	}
 
 	public boolean solve(Grid grid) {
+		return solve(grid, this::search);
+	}
+
+	protected boolean solve(Grid grid, Function<Grid, Grid> searchFunc) {
 		int[] source = grid.cloneSource();
 
 		logger.info("solve() begin.");
@@ -81,7 +84,7 @@ public class ConstraintPropagationSolver implements Solver {
 
 		logger.info("solve() phase 2: brute force search.");
 		Grid brutalized = grid;
-		if ((brutalized = search(grid)) == null) {
+		if ((brutalized = searchFunc.apply(grid)) == null) {
 			logger.error("solve() failed.");
 			return false;
 		}
@@ -106,7 +109,7 @@ public class ConstraintPropagationSolver implements Solver {
 
 		return true;
 	}
-
+	
 	/**
 	 * Tries to assign a digit to a square.<br>
 	 * Calls eliminate on other candidates.
@@ -116,22 +119,15 @@ public class ConstraintPropagationSolver implements Solver {
 	 * @param digit to be assigned
 	 * @return
 	 */
-	private boolean assign(Grid grid, Square square, int digit) {
-		logger.debug(String.format("assign() digit %d to square %s.",
-				digit, square));
+	protected boolean assign(Grid grid, Square square, int digit) {
 		// Must copy the list of candidates before because eliminate may
-		// remove some during the loop. Explicit copying to avoid messing
-		// with references.
+		// remove some during the loop.
 		List<Integer> candidates = grid.getCandidates(square);
 		List<Integer> possibilities = new ArrayList<Integer>();
-		for (int d: candidates) {
-			possibilities.add(d);
-		}
+		possibilities.addAll(candidates);
 		// Eliminate other digits.
 		for (int d: possibilities) {
 			if (d != digit && !eliminate(grid, square, d)) {
-				logger.error(String.format("assign() failed for square %s digit %d."
-						, square, digit));
 				return false;
 			}
 		}
@@ -147,29 +143,21 @@ public class ConstraintPropagationSolver implements Solver {
 	 * @param digit to remove from candidates
 	 * @return
 	 */
-	private boolean eliminate(Grid grid, Square square, int digit) {		
+	protected boolean eliminate(Grid grid, Square square, int digit) {		
 		List<Integer> candidates = grid.getCandidates(square);
 	
 		if (!candidates.contains(digit)) {
 			return true;
 		}
 
-		logger.debug(String.format("eliminate() digit %d from square %s."
-				, digit, square));
 		candidates.remove(Integer.valueOf(digit));
 		
 		// (1) If a square s is reduced to one value, then eliminate it from
 		//     the peers.
 		switch (candidates.size()) {
 		case 0: // Contradiction: removed last value.
-			logger.error(
-					String.format("eliminate() strategy 1 failed for square "
-							+ "%s digit %d, cause: no more candidates."
-							, square, digit));
 			return false;
 		case 1:
-			logger.debug(String.format("eliminate() from peers of square %s."
-					, square));
 			return eliminate(grid, square.getPeers(), candidates.get(0));
 		}
 		
@@ -184,17 +172,9 @@ public class ConstraintPropagationSolver implements Solver {
 			}
 			switch (places.size()) {
 			case 0: // Contradiction: no place for this digit.
-				logger.error(
-						String.format("eliminate() strategy 2 failed for square"
-								+ " %s digit %d, cause: no places."
-								, square, digit));
-				logger.error(String.format("    Current unit: %s"
-						, Arrays.toString(unit)));
 				return false;
 			case 1:
 				// This digit can only be in one place in unit; assign it there.
-				logger.debug(String.format("eliminate() assign digit %d to"
-						+ "place %s.", digit, places.get(0)));
 				if (!assign(grid, places.get(0), digit)) {
 					return false;
 				}
@@ -203,8 +183,8 @@ public class ConstraintPropagationSolver implements Solver {
 		
 		return true;
 	}
-	
-	private boolean eliminate(Grid grid, Set<Square> set, int digit) {
+
+	protected boolean eliminate(Grid grid, Set<Square> set, int digit) {
 		for (Square s: set) {
 			if (!eliminate(grid, s, digit)) {
 				return false;
@@ -212,26 +192,17 @@ public class ConstraintPropagationSolver implements Solver {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Find a solution using brute force for the remaining candidates.
 	 * @param grid
 	 * @return
 	 */
-	private Grid search(Grid grid) {
-		if (grid == null) {
+	protected Grid search(Grid grid) {
+		if (grid == null)
 			return null;
-		}
-
-		// Checks if multiple candidates exists in the grid.
-		boolean ok = true;
-		for (Square s: Square.asArray()) {
-			ok = ok && (grid.getCandidates(s).size() == 1);
-		}
-		if (ok) {
-			logger.info("search() brute force done, 1 candidate per square.");
+		if (check(grid))
 			return grid;
-		}
 
 		// Using depth-first search and propagation, try all possible values.
 		Square square = getSquareWithFewestCandidates(grid);
@@ -251,7 +222,15 @@ public class ConstraintPropagationSolver implements Solver {
 		return null;
 	}
 
-	private Square getSquareWithFewestCandidates(Grid grid) {
+	protected boolean check(Grid grid) {
+		boolean ok = true;
+		for (Square s: Square.asArray()) {
+			ok = ok && (grid.getCandidates(s).size() == 1);
+		}
+		return ok;
+	}
+
+	protected Square getSquareWithFewestCandidates(Grid grid) {
 		Square squareFewestCandidates = Square.A1;
 		int n = 0;
 		for (Square s: Square.asArray()) {
