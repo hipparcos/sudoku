@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.lecnam.sudoku.Grid;
 import net.lecnam.sudoku.Solver;
 import net.lecnam.sudoku.Square;
@@ -31,8 +28,6 @@ import net.lecnam.sudoku.Square;
  *
  */
 public class ConstraintPropagationSolver implements Solver {
-
-	private static Logger logger = LogManager.getLogger("solver");
 
 	/**
 	 * Set to true to generate candidates backwards.
@@ -59,8 +54,6 @@ public class ConstraintPropagationSolver implements Solver {
 	protected boolean solve(Grid grid, Function<Grid, Grid> searchFunc) {
 		int[] source = grid.cloneSource();
 
-		logger.info("solve() begin.");
-
 		// Initialize candidates.
 		for (Square s: Square.asArray()) {
 			List<Integer> candidates = grid.getCandidates(s);
@@ -73,19 +66,15 @@ public class ConstraintPropagationSolver implements Solver {
 			}
 		}
 
-		logger.info("solve() phase 1: assign & eliminate.");
 		for (Square s: Square.asArray()) {
 			int digit = source[s.ordinal()];
 			if (digit > 0 && !assign(grid, s, digit)) {
-				logger.error("solve() failed.");
 				return false;
 			}
 		}
 
-		logger.info("solve() phase 2: brute force search.");
 		Grid brutalized = grid;
 		if ((brutalized = searchFunc.apply(grid)) == null) {
-			logger.error("solve() failed.");
 			return false;
 		}
 
@@ -104,8 +93,6 @@ public class ConstraintPropagationSolver implements Solver {
 		}
 		// Update the original grid.
 		grid.setSolution(solution);
-
-		logger.info("solve() end successfully.");
 
 		return true;
 	}
