@@ -10,8 +10,8 @@ import net.lecnam.sudoku.Solver;
 import net.lecnam.sudoku.Square;
 
 /**
- * Solve a sudoku grid using a combination of two simple strategies and a brute
- * forcing approach.<br>
+ * Solve a sudoku grid using a combination of two simple strategies and a brute-force
+ * search approach.<br>
  * <br>
  * Phase 1: solve using strategies.<br>
  *   Strategies:<br>
@@ -20,7 +20,7 @@ import net.lecnam.sudoku.Square;
  *   (2) If a unit has only one possible place for a value, then put the value
  *       there.<br>
  * <br>
- * Phase 2: solve using brute force.<br>
+ * Phase 2: solve using brute-force search.<br>
  * <br>
  * Heavily inspired by http://norvig.com/sudoku.html
  *

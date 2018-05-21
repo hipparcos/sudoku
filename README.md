@@ -6,7 +6,7 @@ I developed it as required to complete the NFP136 module of my computer science 
 ## Build
 
 This project has been developed & build using Eclipse.
-Basic usage involves the export of a runnable jar named sudoku.jar in the project root directory.
+Basic workflow involves the export of a runnable jar named sudoku.jar in the project /bin/ directory.
 
 ## Usage
 
@@ -14,12 +14,12 @@ Input: the first argument must be a file containing a sudoku grid.
 Output: the completed sudoku grid.
 
 ```
-java -jar sudoku.jar test/grid.txt
+java -jar bin/sudoku.jar test/grid.txt
 ```
 
 ## Principle
 
-The solver solves a sudoku grid using a combination of two simple strategies and a brute forcing approach.
+The solver solves a sudoku grid using a combination of two simple strategies and a brute-force search approach.
 
 Phase 1: solve using strategies.
 Strategies:
@@ -28,6 +28,6 @@ Strategies:
   (2) If a unit has only one possible place for a value, then put the value
       there.
 
-Phase 2: solve using brute force.
+Phase 2: solve using brute-force search.
 
 Heavily inspired by http://norvig.com/sudoku.html
