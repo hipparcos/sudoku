@@ -1,1 +1,1 @@
-java -jar sudoku.jar ../test/grid.txt
+java -jar sudoku.jar ../test/grille1.txt
